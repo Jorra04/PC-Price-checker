@@ -3,7 +3,7 @@ from bs4 import BeautifulSoup
 import re
 from twilio.rest import Client
 import time
-from creds import user, pw, account_sid, auth_token, cell, twillio_num
+from creds import account_sid, auth_token, cell, twillio_num
 class pcPrice:
     def __init__(self):
         self.final_price = 0
@@ -87,10 +87,12 @@ class pcPrice:
 
 pcp = pcPrice()
 
-final_price = pcp.check_prices()
-final_price*= 1.13
-# time.sleep(86400)
-client = Client(account_sid, auth_token)
-full_message = "the final price of your build is: " + str("{:.2f}".format(final_price)) +"\n" + str(pcp.pc_part_list)
-# print(full_message)
-message = client.messages.create(body=full_message,from_=twillio_num,to=cell)
+while True:
+    final_price = pcp.check_prices()
+    final_price*= 1.13
+    
+    client = Client(account_sid, auth_token)
+    full_message = "the final price of your build is: " + str("{:.2f}".format(final_price)) +"\n" + str(pcp.pc_part_list)
+    # print(full_message)
+    message = client.messages.create(body=full_message,from_=twillio_num,to=cell)
+    time.sleep(86400)

@@ -1,3 +1,5 @@
+*.PEM
+*ppk
 creds.py
 
 
