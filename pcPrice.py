@@ -1,6 +1,8 @@
 import requests
 from bs4 import BeautifulSoup
 import re
+from twilio.rest import Client
+from creds import user, pw, account_sid, auth_token, cell, twillio_num
 final_price = 0
 
 for i in range(8):
@@ -42,5 +44,5 @@ results = re.sub("[^\\d.]", "", results)
 final_price += float(results)
 
 final_price *= 1.13
-
-print("the final price of your build is: " + str("{:.2f}".format(final_price)))
+client = Client(account_sid, auth_token)
+message = client.messages.create(body="the final price of your build is: " + str("{:.2f}".format(final_price)),from_=twillio_num,to=cell)
