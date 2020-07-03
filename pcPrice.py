@@ -6,17 +6,17 @@ import time
 from creds import account_sid, auth_token, cell, twillio_num
 class pcPrice:
     def __init__(self):
-        self.final_price = 0
-        self.mother_board = 249.0
-        self.cpu = 300.00
-        self.RAM = 104.99
-        self.m2SSD = 99.99
-        self.HDD =  74.99
-        self.case = 79.99
-        self.psu = 69.99
-        self.gpu = 239.00
-        self.fans = 54.99
-        self.pc_part_list = {"Motherboard": "No Sale", "CPU": "No Sale", "RAM": "No Sale", "SSD": "No Sale", "HDD": "No Sale", "Case": "No Sale", "PSU": "No Sale",
+        self.__final_price = 0
+        self.__mother_board = 249.0
+        self.__cpu = 300.00
+        self.__RAM = 104.99
+        self.__m2SSD = 99.99
+        self.__HDD =  74.99
+        self.__case = 79.99
+        self.__psu = 69.99
+        self.__gpu = 239.00
+        self.__fans = 54.99
+        self.__pc_part_list = {"Motherboard": "No Sale", "CPU": "No Sale", "RAM": "No Sale", "SSD": "No Sale", "HDD": "No Sale", "Case": "No Sale", "PSU": "No Sale",
         "GPU": "No Sale", "Fans": "No Sale"}
     def check_prices(self):
         for i in range(8):
@@ -44,31 +44,31 @@ class pcPrice:
             results = soup.find("span", class_="h2-big").get_text().strip()
             results = re.sub("[^\\d.]", "", results)
             if i == 0:
-                if(float(results) < self.mother_board):
-                    self.pc_part_list["Motherboard"] = "Sale"
+                if(float(results) < self.__mother_board):
+                    self.__pc_part_list["Motherboard"] = "Sale"
 
             elif i == 1:
-                if(float(results) < self.cpu):
-                    self.pc_part_list["CPU"] = "Sale"
+                if(float(results) < self.__cpu):
+                    self.__pc_part_list["CPU"] = "Sale"
             elif i == 2:
-                if(float(results) < self.RAM):
-                    self.pc_part_list["RAM"] = "Sale"
+                if(float(results) < self.__RAM):
+                    self.__pc_part_list["RAM"] = "Sale"
             elif i == 3:
-                if(float(results) < self.m2SSD):
-                    self.pc_part_list["SSD"] = "Sale"
+                if(float(results) < self.__m2SSD):
+                    self.__pc_part_list["SSD"] = "Sale"
             elif i == 4:
-               if(float(results) < self.HDD):
-                    self.pc_part_list["HDD"] = "Sale"
+               if(float(results) < self.__HDD):
+                    self.__pc_part_list["HDD"] = "Sale"
             elif i == 5:
-                if(float(results) < self.case):
-                    self.pc_part_list["Case"] = "Sale"
+                if(float(results) < self.__case):
+                    self.__pc_part_list["Case"] = "Sale"
             elif i == 6:
-                if(float(results) < self.psu):
-                    self.pc_part_list["PSU"] = "Sale"
+                if(float(results) < self.__psu):
+                    self.__pc_part_list["PSU"] = "Sale"
             elif i == 7:
-                if(float(results) < self.gpu):
-                    self.pc_part_list["GPU"] = "Sale"
-            self.final_price += float(results)
+                if(float(results) < self.__gpu):
+                    self.__pc_part_list["GPU"] = "Sale"
+            self.__final_price += float(results)
             # print(final_price)
         headers = {
             "User-Agent": 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.116 Safari/537.36'
@@ -78,12 +78,19 @@ class pcPrice:
         soup = BeautifulSoup(page.content, 'lxml')   
         results = soup.find("span", class_="a-size-medium a-color-price priceBlockBuyingPriceString").get_text().strip()
         results = re.sub("[^\\d.]", "", results)
-        if(float(results) < self.fans):
-                    self.pc_part_list["Fans"] = "Sale"
+        if(float(results) < self.__fans):
+                    self.__pc_part_list["Fans"] = "Sale"
         # print(results)
-        self.final_price += float(results)
+        self.__final_price += float(results)
         # print(self.pc_part_list)
-        return self.final_price
+        return self.__final_price
+
+    def get_pc_parts_list(self):
+        return self.__pc_part_list
+    def reset_all(self):
+        self.__final_price = 0
+        self.__pc_part_list = {"Motherboard": "No Sale", "CPU": "No Sale", "RAM": "No Sale", "SSD": "No Sale", "HDD": "No Sale", "Case": "No Sale", "PSU": "No Sale",
+        "GPU": "No Sale", "Fans": "No Sale"}
 
 pcp = pcPrice()
 
@@ -92,7 +99,8 @@ while True:
     final_price*= 1.13
     
     client = Client(account_sid, auth_token)
-    full_message = "the final price of your build is: " + str("{:.2f}".format(final_price)) +"\n" + str(pcp.pc_part_list)
+    full_message = "the final price of your build is: " + str("{:.2f}".format(final_price)) +"\n" + str(pcp.get_pc_parts_list())
     # print(full_message)
     message = client.messages.create(body=full_message,from_=twillio_num,to=cell)
     time.sleep(86400)
+    pcp.reset_all()
